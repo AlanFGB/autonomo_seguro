@@ -1,0 +1,63 @@
+Autônomo Seguro - Dossiê Jurídico 🛡️
+
+Software desenvolvido para auxiliar na comprovação de trabalho autônomo no Brasil, focando na constituição de prova material para diferenciação de vínculo empregatício.
+
+📋 Sobre o Projeto
+
+O Autônomo Seguro é uma aplicação web (Single Page Application) que permite ao prestador de serviços criar uma "Trilha de Auditoria Pessoal".
+
+No cenário jurídico brasileiro, a linha entre trabalho autônomo e vínculo CLT é tênue. Este software ajuda a evidenciar os requisitos da autonomia:
+
+Não exclusividade: Através da gestão de múltiplos clientes.
+
+Ausência de subordinação: Focando o registro na "entrega/resultado" e não apenas no horário.
+
+Independência: Controle de meios e insumos próprios.
+
+🚀 Funcionalidades Principais
+
+Diário de Bordo: Registro de atividades com foco em provas (descrição técnica, geolocalização e fotos).
+
+Dashboard Financeiro: Visão clara de faturamento e multiplicidade de fontes pagadoras.
+
+Gestão de Tomadores: Cadastro de clientes (CNPJ/CPF).
+
+Modo Dossiê (Exportação): Gera um layout limpo e formatado especificamente para ser "impresso em PDF" e anexado a processos judiciais como prova documental.
+
+🛠️ Tecnologias
+
+React
+
+Tailwind CSS - Para estilização responsiva.
+
+Lucide React - Para ícones da interface.
+
+📦 Instalação e Execução
+
+Pré-requisitos: Node.js e Git.
+
+Clone o repositório:
+
+git clone [https://github.com/SEU-USUARIO/autonomo-seguro.git](https://github.com/SEU-USUARIO/autonomo-seguro.git)
+cd autonomo-seguro
+
+
+Instale as dependências:
+
+npm install
+
+
+Inicie o servidor de desenvolvimento:
+
+npm run dev
+
+
+O app estará disponível em http://localhost:5173 (ou porta similar).
+
+📄 Licença
+
+Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
+
+⚠️ Aviso Legal
+
+Este software é uma ferramenta organizacional. Ele não substitui a consultoria jurídica de um advogado. A validade das provas geradas depende da veracidade das informações inseridas pelo usuário e da interpretação do tribunal competente.
