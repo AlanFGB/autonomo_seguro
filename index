@@ -1,0 +1,533 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Briefcase, 
+  Calendar, 
+  FileText, 
+  Shield, 
+  Plus, 
+  Trash2, 
+  Download, 
+  User, 
+  CheckCircle, 
+  AlertTriangle,
+  MapPin,
+  Camera,
+  DollarSign,
+  Menu,
+  X
+} from 'lucide-react';
+
+// --- Componentes UI Básicos ---
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    {children}
+  </div>
+);
+
+const Button = ({ children, onClick, variant = "primary", className = "", type = "button" }) => {
+  const baseStyle = "px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1";
+  const variants = {
+    primary: "bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500",
+    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-400",
+    danger: "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 focus:ring-red-400",
+    success: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
+  };
+  return (
+    <button type={type} onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>
+      {children}
+    </button>
+  );
+};
+
+// --- Mock Data Inicial ---
+const initialClients = [
+  { id: 1, name: "Construtora Silva LTDA", cnpj: "12.345.678/0001-90", contact: "Eng. Roberto" },
+  { id: 2, name: "Tech Solutions S.A.", cnpj: "98.765.432/0001-10", contact: "Dra. Ana" }
+];
+
+const initialLogs = [
+  { id: 1, clientId: 1, date: "2023-10-15", type: "Entrega", description: "Entrega do projeto elétrico fase 1", location: "Obra Zona Sul", amount: 1500 },
+  { id: 2, clientId: 1, date: "2023-10-20", type: "Reunião", description: "Alinhamento técnico (via Zoom)", location: "Home Office", amount: 0 },
+  { id: 3, clientId: 2, date: "2023-10-22", type: "Consultoria", description: "Auditoria de segurança de rede", location: "Sede Cliente", amount: 800 },
+];
+
+export default function AutonomoApp() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [clients, setClients] = useState(initialClients);
+  const [logs, setLogs] = useState(initialLogs);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Estados de Formulário
+  const [newLog, setNewLog] = useState({ clientId: "", date: "", type: "Execução", description: "", location: "", amount: "" });
+  const [newClient, setNewClient] = useState({ name: "", cnpj: "", contact: "" });
+
+  // Funções de Ação
+  const addLog = (e) => {
+    e.preventDefault();
+    if (!newLog.clientId || !newLog.description) return;
+    const logEntry = {
+      id: Date.now(),
+      clientId: parseInt(newLog.clientId),
+      date: newLog.date || new Date().toISOString().split('T')[0],
+      type: newLog.type,
+      description: newLog.description,
+      location: newLog.location,
+      amount: parseFloat(newLog.amount) || 0
+    };
+    setLogs([logEntry, ...logs]);
+    setNewLog({ clientId: "", date: "", type: "Execução", description: "", location: "", amount: "" });
+    alert("Registro adicionado com sucesso! Isso servirá como prova de atividade.");
+  };
+
+  const addClient = (e) => {
+    e.preventDefault();
+    const clientEntry = { id: Date.now(), ...newClient };
+    setClients([...clients, clientEntry]);
+    setNewClient({ name: "", cnpj: "", contact: "" });
+  };
+
+  const deleteLog = (id) => setLogs(logs.filter(l => l.id !== id));
+
+  // Renderização das Telas
+  const renderDashboard = () => {
+    const totalEarnings = logs.reduce((acc, curr) => acc + curr.amount, 0);
+    const uniqueClients = [...new Set(logs.map(l => l.clientId))].length;
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-6 border-l-4 border-blue-600">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium uppercase">Registros de Prova</p>
+                <h3 className="text-3xl font-bold text-gray-800">{logs.length}</h3>
+              </div>
+              <FileText className="text-blue-600 w-10 h-10" />
+            </div>
+            <p className="text-xs text-gray-400 mt-2">Evidências de trabalho documentadas</p>
+          </Card>
+
+          <Card className="p-6 border-l-4 border-green-600">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium uppercase">Valor Acumulado</p>
+                <h3 className="text-3xl font-bold text-gray-800">R$ {totalEarnings.toLocaleString('pt-BR')}</h3>
+              </div>
+              <DollarSign className="text-green-600 w-10 h-10" />
+            </div>
+            <p className="text-xs text-gray-400 mt-2">Base para cálculo de cobrança</p>
+          </Card>
+
+          <Card className="p-6 border-l-4 border-purple-600">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 font-medium uppercase">Clientes Ativos</p>
+                <h3 className="text-3xl font-bold text-gray-800">{uniqueClients}</h3>
+              </div>
+              <Briefcase className="text-purple-600 w-10 h-10" />
+            </div>
+            <p className="text-xs text-gray-400 mt-2">Indicador de não-exclusividade</p>
+          </Card>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start space-x-3">
+          <Shield className="text-blue-700 w-6 h-6 flex-shrink-0 mt-1" />
+          <div>
+            <h4 className="font-bold text-blue-800">Dica Jurídica: Autonomia</h4>
+            <p className="text-sm text-blue-700 mt-1">
+              Para caracterizar trabalho autônomo e evitar falsos vínculos, é crucial documentar que você possui 
+              <strong> controle sobre sua própria agenda</strong> e que atende <strong>múltiplos clientes</strong>. 
+              Use o registro de atividades para provar entregas por projeto, não por horário fixo.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="font-bold text-gray-800">Atividades Recentes</h3>
+          </div>
+          <ul className="divide-y divide-gray-200">
+            {logs.slice(0, 5).map(log => {
+              const client = clients.find(c => c.id === log.clientId);
+              return (
+                <li key={log.id} className="px-6 py-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm font-bold text-gray-800">{log.description}</p>
+                      <p className="text-xs text-gray-500">
+                        {client?.name} • {new Date(log.date).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {log.type}
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLogbook = () => (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+          <Plus className="w-5 h-5 mr-2" /> Novo Registro de Atividade
+        </h3>
+        <form onSubmit={addLog} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="col-span-1 md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700">Cliente</label>
+            <select 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              value={newLog.clientId}
+              onChange={e => setNewLog({...newLog, clientId: e.target.value})}
+              required
+            >
+              <option value="">Selecione o Cliente</option>
+              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Data da Atividade</label>
+            <input 
+              type="date" 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              value={newLog.date}
+              onChange={e => setNewLog({...newLog, date: e.target.value})}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Tipo de Atividade</label>
+            <select 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              value={newLog.type}
+              onChange={e => setNewLog({...newLog, type: e.target.value})}
+            >
+              <option>Execução de Serviço</option>
+              <option>Entrega / Milestone</option>
+              <option>Reunião de Alinhamento</option>
+              <option>Visita Técnica</option>
+              <option>Compra de Insumos</option>
+            </select>
+          </div>
+
+          <div className="col-span-1 md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700">Descrição Detalhada (Prova Material)</label>
+            <textarea 
+              rows="3"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"
+              placeholder="Ex: Instalação do quadro elétrico conforme norma NBR-5410. Fotos tiradas no local."
+              value={newLog.description}
+              onChange={e => setNewLog({...newLog, description: e.target.value})}
+              required
+            ></textarea>
+            <p className="text-xs text-gray-500 mt-1">Detalhes específicos ajudam a provar a veracidade do serviço.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Local (Geolocalização)</label>
+            <div className="flex">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                <MapPin className="w-4 h-4" />
+              </span>
+              <input 
+                type="text" 
+                className="flex-1 block w-full rounded-none rounded-r-md border-gray-300 border p-2"
+                placeholder="Endereço ou Coordenadas"
+                value={newLog.location}
+                onChange={e => setNewLog({...newLog, location: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Valor Acordado (Opcional)</label>
+            <div className="flex">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                R$
+              </span>
+              <input 
+                type="number" 
+                className="flex-1 block w-full rounded-none rounded-r-md border-gray-300 border p-2"
+                placeholder="0,00"
+                value={newLog.amount}
+                onChange={e => setNewLog({...newLog, amount: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="col-span-1 md:col-span-2 pt-2">
+             <Button type="submit" className="w-full">Registrar Prova</Button>
+          </div>
+        </form>
+      </Card>
+
+      <div className="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul className="divide-y divide-gray-200">
+          {logs.map((log) => {
+            const client = clients.find(c => c.id === log.clientId);
+            return (
+              <li key={log.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-3">
+                    <p className="text-sm font-medium text-blue-600 truncate">{client?.name}</p>
+                    <span className="flex-shrink-0 inline-block px-2 py-0.5 text-green-800 text-xs font-medium bg-green-100 rounded-full">
+                      {log.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-900 mt-1">{log.description}</p>
+                  <p className="text-xs text-gray-500 mt-1 flex items-center">
+                    <Calendar className="w-3 h-3 mr-1" /> {new Date(log.date).toLocaleDateString('pt-BR')}
+                    {log.location && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <MapPin className="w-3 h-3 mr-1" /> {log.location}
+                      </>
+                    )}
+                  </p>
+                </div>
+                <div className="ml-4 flex-shrink-0 flex space-x-2">
+                  <button onClick={() => deleteLog(log.id)} className="text-red-400 hover:text-red-600">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+
+  const renderClients = () => (
+    <div className="space-y-6">
+       <Card className="p-6">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Adicionar Cliente / Tomador de Serviço</h3>
+        <form onSubmit={addClient} className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-medium text-gray-700">Nome / Razão Social</label>
+            <input 
+              type="text" 
+              className="mt-1 block w-full rounded-md border-gray-300 border p-2"
+              value={newClient.name}
+              onChange={e => setNewClient({...newClient, name: e.target.value})}
+              required
+            />
+          </div>
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-medium text-gray-700">CNPJ / CPF</label>
+            <input 
+              type="text" 
+              className="mt-1 block w-full rounded-md border-gray-300 border p-2"
+              value={newClient.cnpj}
+              onChange={e => setNewClient({...newClient, cnpj: e.target.value})}
+              required
+            />
+          </div>
+          <div className="flex-1 w-full">
+             <Button type="submit" className="w-full">Cadastrar</Button>
+          </div>
+        </form>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {clients.map(client => (
+          <div key={client.id} className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+            <div className="flex-shrink-0">
+              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <User className="text-gray-500 w-6 h-6" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <a href="#" className="focus:outline-none">
+                <span className="absolute inset-0" aria-hidden="true" />
+                <p className="text-sm font-medium text-gray-900">{client.name}</p>
+                <p className="text-sm text-gray-500 truncate">{client.cnpj}</p>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderReport = () => {
+    const handlePrint = () => {
+      window.print();
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          <div className="flex items-center">
+            <AlertTriangle className="text-yellow-600 w-6 h-6 mr-3" />
+            <div>
+              <h4 className="font-bold text-yellow-800">Modo de Exportação Judicial</h4>
+              <p className="text-sm text-yellow-700">Esta tela gera um layout limpo para impressão em PDF. Clique em "Imprimir Dossiê" para gerar o documento final.</p>
+            </div>
+          </div>
+          <Button onClick={handlePrint} variant="primary" className="flex items-center">
+            <Download className="w-4 h-4 mr-2" /> Imprimir Dossiê
+          </Button>
+        </div>
+
+        {/* Layout do Relatório (Simulação de Papel A4 na tela) */}
+        <div className="bg-white shadow-lg p-8 md:p-12 min-h-screen border border-gray-200 print:shadow-none print:border-none print:w-full">
+          <div className="text-center mb-10 border-b pb-6">
+            <h1 className="text-3xl font-bold text-gray-900 uppercase tracking-wider">Relatório de Atividades Autônomas</h1>
+            <p className="text-gray-500 mt-2">Documento para fins de comprovação de prestação de serviços</p>
+            <p className="text-sm text-gray-400 mt-1">Gerado em: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}</p>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-gray-800 border-l-4 border-blue-600 pl-3 mb-4 uppercase">1. Resumo do Prestador</h2>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><span className="font-bold">Total de Clientes Atendidos:</span> {clients.length}</div>
+              <div><span className="font-bold">Total de Registros:</span> {logs.length}</div>
+              <div className="col-span-2 text-gray-600 italic mt-2">
+                "Declaro, para os devidos fins, que os registros abaixo correspondem à prestação de serviços autônomos, realizados sem exclusividade e com gestão própria de agenda e meios."
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-gray-800 border-l-4 border-blue-600 pl-3 mb-4 uppercase">2. Detalhamento por Cliente</h2>
+            
+            {clients.map(client => {
+              const clientLogs = logs.filter(l => l.clientId === client.id);
+              if (clientLogs.length === 0) return null;
+
+              return (
+                <div key={client.id} className="mb-8 break-inside-avoid">
+                  <h3 className="font-bold text-md bg-gray-100 p-2 rounded mb-2">{client.name} (CNPJ: {client.cnpj})</h3>
+                  <table className="min-w-full divide-y divide-gray-200 border text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descrição do Serviço / Prova</th>
+                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {clientLogs.map(log => (
+                        <tr key={log.id}>
+                          <td className="px-3 py-2 whitespace-nowrap text-gray-900">{new Date(log.date).toLocaleDateString('pt-BR')}</td>
+                          <td className="px-3 py-2 whitespace-nowrap text-gray-600">{log.type}</td>
+                          <td className="px-3 py-2 text-gray-900">
+                            {log.description}
+                            {log.location && <div className="text-xs text-gray-400 mt-1">Local: {log.location}</div>}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
+                            {log.amount > 0 ? `R$ ${log.amount.toFixed(2)}` : '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-gray-300 text-center text-sm text-gray-500">
+            <p>Este documento é um registro digital de atividades.</p>
+            <p className="mt-8">___________________________________________________</p>
+            <p>Assinatura do Prestador de Serviços</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 font-sans">
+      {/* Header Mobile */}
+      <div className="md:hidden bg-blue-800 text-white p-4 flex justify-between items-center shadow-md">
+        <div className="flex items-center space-x-2">
+          <Shield className="w-6 h-6" />
+          <span className="font-bold text-lg">Autônomo Seguro</span>
+        </div>
+        <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
+          {showMobileMenu ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      <div className="flex flex-col md:flex-row min-h-screen">
+        {/* Sidebar Navigation */}
+        <aside className={`${showMobileMenu ? 'block' : 'hidden'} md:block w-full md:w-64 bg-blue-900 text-white flex-shrink-0 transition-all duration-300`}>
+          <div className="p-6 hidden md:flex items-center space-x-2 border-b border-blue-800">
+            <Shield className="w-8 h-8 text-blue-300" />
+            <span className="font-bold text-xl tracking-tight">Autônomo<br/>Seguro</span>
+          </div>
+          
+          <nav className="mt-6 px-4 space-y-2">
+            <button 
+              onClick={() => { setActiveTab('dashboard'); setShowMobileMenu(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-blue-700 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800'}`}
+            >
+              <Briefcase className="w-5 h-5" />
+              <span>Visão Geral</span>
+            </button>
+            <button 
+              onClick={() => { setActiveTab('logs'); setShowMobileMenu(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'logs' ? 'bg-blue-700 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800'}`}
+            >
+              <FileText className="w-5 h-5" />
+              <span>Diário de Bordo</span>
+            </button>
+            <button 
+              onClick={() => { setActiveTab('clients'); setShowMobileMenu(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'clients' ? 'bg-blue-700 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800'}`}
+            >
+              <User className="w-5 h-5" />
+              <span>Meus Clientes</span>
+            </button>
+            <button 
+              onClick={() => { setActiveTab('report'); setShowMobileMenu(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'report' ? 'bg-blue-700 text-white shadow-lg' : 'text-blue-200 hover:bg-blue-800'}`}
+            >
+              <CheckCircle className="w-5 h-5" />
+              <span>Dossiê Jurídico</span>
+            </button>
+          </nav>
+
+          <div className="p-4 mt-auto fixed bottom-0 md:relative w-full md:w-64 bg-blue-900">
+            <div className="bg-blue-800 rounded-lg p-4">
+              <p className="text-xs text-blue-300 mb-2">Segurança de Dados</p>
+              <p className="text-xs text-blue-100">Seus dados são armazenados localmente no navegador para esta demonstração.</p>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto print:p-0 print:overflow-visible">
+          <header className="mb-8 flex justify-between items-center print:hidden">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">
+                {activeTab === 'dashboard' && 'Painel de Controle'}
+                {activeTab === 'logs' && 'Registro de Atividades'}
+                {activeTab === 'clients' && 'Gestão de Tomadores'}
+                {activeTab === 'report' && 'Exportação de Provas'}
+              </h1>
+              <p className="text-gray-500 text-sm">Gestão autônoma para fins de comprovação legal.</p>
+            </div>
+          </header>
+
+          <div className="max-w-5xl mx-auto">
+            {activeTab === 'dashboard' && renderDashboard()}
+            {activeTab === 'logs' && renderLogbook()}
+            {activeTab === 'clients' && renderClients()}
+            {activeTab === 'report' && renderReport()}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
