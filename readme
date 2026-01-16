@@ -1,63 +1,47 @@
 Autônomo Seguro - Dossiê Jurídico 🛡️
 
-Software desenvolvido para auxiliar na comprovação de trabalho autônomo no Brasil, focando na constituição de prova material para diferenciação de vínculo empregatício.
+O Autônomo Seguro é uma aplicação voltada para a proteção jurídica de prestadores de serviço autônomos no Brasil. Ele ajuda a consolidar provas de autonomia técnica e administrativa para mitigar riscos de reconhecimento de vínculo empregatício indevido.
 
-📋 Sobre o Projeto
+✨ O que há de novo na V2?
 
-O Autônomo Seguro é uma aplicação web (Single Page Application) que permite ao prestador de serviços criar uma "Trilha de Auditoria Pessoal".
+Para tornar o software mais robusto para uso real e demonstração no GitHub, as seguintes melhorias foram implementadas:
 
-No cenário jurídico brasileiro, a linha entre trabalho autônomo e vínculo CLT é tênue. Este software ajuda a evidenciar os requisitos da autonomia:
+Persistência Local: Uso de LocalStorage para manter os dados salvos no navegador do usuário, permitindo o uso contínuo sem banco de dados complexo (Ideal para portfólio).
 
-Não exclusividade: Através da gestão de múltiplos clientes.
+Hash de Integridade de Prova: Cada registro gera um código único (Integrity Hash) baseado nos dados inseridos, servindo como uma evidência de que o log não foi adulterado retroativamente.
 
-Ausência de subordinação: Focando o registro na "entrega/resultado" e não apenas no horário.
+Design Premium (Tailwind): Interface moderna e responsiva focada em produtividade.
 
-Independência: Controle de meios e insumos próprios.
+Modo Relatório ABNT: Layout de impressão otimizado para gerar PDFs que seguem padrões de documentos anexados em processos judiciais (PJe).
 
-🚀 Funcionalidades Principais
+📋 Requisitos da Autonomia (CLT vs Autônomo)
 
-Diário de Bordo: Registro de atividades com foco em provas (descrição técnica, geolocalização e fotos).
+O software foca nos 3 pilares da defesa jurídica:
 
-Dashboard Financeiro: Visão clara de faturamento e multiplicidade de fontes pagadoras.
+Não-Eventualidade: Registra a frequência das entregas.
 
-Gestão de Tomadores: Cadastro de clientes (CNPJ/CPF).
+Não-Subordinação: Espaço dedicado para descrever "Decisões Técnicas Independentes".
 
-Modo Dossiê (Exportação): Gera um layout limpo e formatado especificamente para ser "impresso em PDF" e anexado a processos judiciais como prova documental.
+Onerosidade: Controle de valores por entrega (milestone) e não por salário fixo.
 
 🛠️ Tecnologias
 
-React
+React 18
 
-Tailwind CSS - Para estilização responsiva.
+Tailwind CSS (Estilização de alta performance)
 
-Lucide React - Para ícones da interface.
+Lucide Icons (Ícones semânticos)
 
-📦 Instalação e Execução
+Integrity Hash System (Algoritmo de verificação de dados)
 
-Pré-requisitos: Node.js e Git.
-
-Clone o repositório:
-
-git clone [https://github.com/SEU-USUARIO/autonomo-seguro.git](https://github.com/SEU-USUARIO/autonomo-seguro.git)
-cd autonomo-seguro
-
-
-Instale as dependências:
+📦 Como Rodar
 
 npm install
 
-
-Inicie o servidor de desenvolvimento:
-
 npm run dev
 
+⚖️ Aviso Legal
 
-O app estará disponível em http://localhost:5173 (ou porta similar).
+Este projeto é uma ferramenta de apoio à organização de evidências. O uso deste software não garante sucesso em demandas judiciais e não substitui o acompanhamento de um advogado especializado.
 
-📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
-
-⚠️ Aviso Legal
-
-Este software é uma ferramenta organizacional. Ele não substitui a consultoria jurídica de um advogado. A validade das provas geradas depende da veracidade das informações inseridas pelo usuário e da interpretação do tribunal competente.
+Licenciado sob a MIT License.
