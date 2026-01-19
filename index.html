@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autônomo Seguro - Dossiê Jurídico</title>
+    <!-- Bibliotecas Externas (Necessário Internet) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .print\:hidden { display: none !important; }
+            body { background: white !important; }
+            .print\:shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Componentes de Ícones (Lucide)
+        const Icon = ({ name, className = "w-5 h-5" }) => {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, []);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [clients, setClients] = useState(() => JSON.parse(localStorage.getItem('as_clients') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('as_logs') || '[]'));
+
+            useEffect(() => {
+                localStorage.setItem('as_clients', JSON.stringify(clients));
+                localStorage.setItem('as_logs', JSON.stringify(logs));
+                if (window.lucide) window.lucide.createIcons();
+            }, [clients, logs, activeTab]);
+
+            const addClient = (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const newC = { id: Date.now().toString(), name: form.name.value, cnpj: form.cnpj.value };
+                setClients([...clients, newC]);
+                form.reset();
+            };
+
+            const addLog = (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const newL = {
+                    id: Date.now().toString(),
+                    clientId: form.clientId.value,
+                    date: form.date.value,
+                    type: form.type.value,
+                    description: form.description.value,
+                    amount: parseFloat(form.amount.value || 0),
+                    integrityHash: "AS-" + Math.random().toString(36).substr(2, 9).toUpperCase()
+                };
+                setLogs([newL, ...logs]);
+                form.reset();
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row min-h-screen">
+                    {/* Menu Lateral */}
+                    <aside className="w-full md:w-64 bg-slate-900 text-white p-6 print:hidden">
+                        <div className="flex items-center gap-3 mb-10">
+                            <div className="bg-blue-600 p-2 rounded-lg text-white">
+                                <Icon name="shield" className="w-6 h-6" />
+                            </div>
+                            <span className="font-bold text-xl tracking-tight">Autônomo Seguro</span>
+                        </div>
+                        <nav className="space-y-1">
+                            {['dashboard', 'logs', 'clients', 'report'].map((tab) => (
+                                <button 
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)} 
+                                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === tab ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+                                >
+                                    <Icon name={tab === 'dashboard' ? 'layout' : tab === 'logs' ? 'file-text' : tab === 'clients' ? 'users' : 'printer'} />
+                                    <span className="capitalize">{tab === 'report' ? 'Gerar Dossiê' : tab === 'logs' ? 'Diário' : tab === 'clients' ? 'Clientes' : tab}</span>
+                                </button>
+                            ))}
+                        </nav>
+                    </aside>
+
+                    {/* Conteúdo Principal */}
+                    <main className="flex-1 p-6 md:p-10">
+                        {activeTab === 'dashboard' && (
+                            <div className="animate-in fade-in duration-500">
+                                <h1 className="text-3xl font-black text-slate-800 mb-8 text-center md:text-left">Painel de Controle</h1>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Provas Ativas</p>
+                                        <h2 className="text-5xl font-black text-slate-900 mt-2">{logs.length}</h2>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Faturamento Protegido</p>
+                                        <h2 className="text-5xl font-black text-blue-600 mt-2">R$ {logs.reduce((a,b) => a + b.amount, 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</h2>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                                        <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Clientes</p>
+                                        <h2 className="text-5xl font-black text-slate-900 mt-2">{clients.length}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'logs' && (
+                            <div className="max-w-4xl mx-auto">
+                                <h2 className="text-2xl font-bold mb-6 text-slate-800">Registrar Prova Contemporânea</h2>
+                                <form onSubmit={addLog} className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-6 mb-10">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-slate-700">Tomador de Serviço</label>
+                                            <select name="clientId" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                                <option value="">Selecione...</option>
+                                                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-slate-700">Data do Fato</label>
+                                            <input type="date" name="date" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" required />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Tipo de Evidência Jurídica</label>
+                                        <select name="type" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50">
+                                            <option>Ausência de Subordinação (Decisão Própria)</option>
+                                            <option>Assunção de Risco (Investimento Próprio)</option>
+                                            <option>Não Eventualidade Documentada</option>
+                                            <option>Recusa de Exclusividade</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Descrição Detalhada</label>
+                                        <textarea name="description" placeholder="Ex: Utilizei equipamento próprio e defini o cronograma sem interferência do contratante..." className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50" rows="3" required></textarea>
+                                    </div>
+                                    <input type="number" name="amount" placeholder="Valor do Serviço (R$)" step="0.01" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" />
+                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-black text-lg shadow-lg transition-all flex justify-center items-center gap-2">
+                                        <Icon name="check-circle" /> SALVAR REGISTRO
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {activeTab === 'clients' && (
+                            <div className="max-w-2xl mx-auto">
+                                <h2 className="text-2xl font-bold mb-6 text-slate-800">Meus Contratantes</h2>
+                                <form onSubmit={addClient} className="bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row gap-3 mb-8">
+                                    <input name="name" placeholder="Nome/Razão Social" className="flex-1 p-3 border rounded-xl" required />
+                                    <input name="cnpj" placeholder="CNPJ ou CPF" className="w-full md:w-48 p-3 border rounded-xl" required />
+                                    <button className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-colors">Adicionar</button>
+                                </form>
+                                <div className="space-y-3">
+                                    {clients.length === 0 && <p className="text-center text-slate-400 py-10">Nenhum cliente cadastrado.</p>}
+                                    {clients.map(c => (
+                                        <div key={c.id} className="bg-white p-5 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm">
+                                            <div className="bg-blue-100 p-4 rounded-full text-blue-700 font-black">{c.name[0].toUpperCase()}</div>
+                                            <div>
+                                                <p className="font-bold text-slate-800">{c.name}</p>
+                                                <p className="text-xs text-slate-400 font-mono uppercase">{c.cnpj}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'report' && (
+                            <div className="max-w-5xl mx-auto space-y-8 pb-20">
+                                <div className="bg-gradient-to-r from-slate-900 to-blue-900 p-10 rounded-3xl text-white flex flex-col md:flex-row justify-between items-center print:hidden shadow-2xl">
+                                    <div className="mb-6 md:mb-0 text-center md:text-left">
+                                        <h2 className="text-3xl font-black">Dossiê Material Pronto</h2>
+                                        <p className="text-blue-200 mt-2">Relatório técnico para fins de prova de autonomia.</p>
+                                    </div>
+                                    <button onClick={() => window.print()} className="bg-emerald-500 hover:bg-emerald-400 text-white px-10 py-5 rounded-2xl font-black shadow-xl flex items-center gap-3 transition-transform hover:scale-105 uppercase tracking-tighter">
+                                        <Icon name="printer" /> Imprimir / Salvar PDF
+                                    </button>
+                                </div>
+
+                                <div className="bg-white p-12 shadow-2xl rounded-sm min-h-[1000px] border border-slate-200 print:shadow-none print:border-none">
+                                    <div className="flex justify-between items-start border-b-8 border-slate-900 pb-6 mb-12">
+                                        <div>
+                                            <h1 className="text-3xl font-black text-slate-900">RELATÓRIO DE AUTONOMIA</h1>
+                                            <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Evidências Contemporâneas de Prestação de Serviço</p>
+                                        </div>
+                                        <div className="text-right text-xs font-mono text-slate-400">
+                                            GERADO EM: {new Date().toLocaleDateString('pt-BR')}<br/>
+                                            SISTEMA: AUTÔNOMO SEGURO V1.0
+                                        </div>
+                                    </div>
+                                    
+                                    {clients.map(client => {
+                                        const cLogs = logs.filter(l => l.clientId === client.id);
+                                        if(cLogs.length === 0) return null;
+                                        return (
+                                            <div key={client.id} className="mb-12">
+                                                <div className="bg-slate-100 p-4 rounded-lg flex justify-between items-center mb-6">
+                                                    <span className="font-black text-slate-700 uppercase">Contratante: {client.name}</span>
+                                                    <span className="text-sm font-mono">{client.cnpj}</span>
+                                                </div>
+                                                <div className="space-y-6">
+                                                    {cLogs.map(l => (
+                                                        <div key={l.id} className="border-b border-slate-100 pb-6 last:border-0">
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <span className="text-xs font-black bg-slate-900 text-white px-2 py-1 rounded uppercase">{l.type}</span>
+                                                                <span className="text-xs font-mono text-slate-400">HASH: {l.integrityHash}</span>
+                                                            </div>
+                                                            <p className="text-sm text-slate-700 leading-relaxed mb-2"><strong className="text-slate-900">{l.date}:</strong> {l.description}</p>
+                                                            <p className="text-xs font-bold text-slate-400">Valor Declarado: R$ {l.amount.toFixed(2)}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+
+                                    <div className="mt-20 pt-10 border-t border-slate-200 flex flex-col items-center">
+                                        <div className="w-72 h-px bg-slate-400 mb-4"></div>
+                                        <p className="text-sm font-black text-slate-800">DECLARAÇÃO DE VERACIDADE DO PRESTADOR</p>
+                                        <p className="text-[10px] text-slate-400 mt-8 max-w-lg text-center leading-tight italic">
+                                            Este documento reúne registros feitos em tempo real pelo profissional, servindo como meio de prova de autonomia técnica, ausência de subordinação e assunção de risco econômico.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
