@@ -67,6 +67,13 @@
                 };
                 setLogs([newL, ...logs]);
                 form.reset();
+                setActiveTab('dashboard'); // Volta para o dashboard para ver o resultado
+            };
+
+            const deleteLog = (id) => {
+                if(confirm("Deseja realmente excluir este registro de prova?")) {
+                    setLogs(logs.filter(l => l.id !== id));
+                }
             };
 
             return (
@@ -98,7 +105,7 @@
                         {activeTab === 'dashboard' && (
                             <div className="animate-in fade-in duration-500">
                                 <h1 className="text-3xl font-black text-slate-800 mb-8 text-center md:text-left">Painel de Controle</h1>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
                                         <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Provas Ativas</p>
                                         <h2 className="text-5xl font-black text-slate-900 mt-2">{logs.length}</h2>
@@ -112,64 +119,118 @@
                                         <h2 className="text-5xl font-black text-slate-900 mt-2">{clients.length}</h2>
                                     </div>
                                 </div>
+
+                                <h3 className="text-xl font-bold mb-4 text-slate-700">Registros Recentes</h3>
+                                <div className="space-y-3">
+                                    {logs.slice(0, 5).map(log => (
+                                        <div key={log.id} className="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm">
+                                            <div>
+                                                <span className="text-[10px] font-mono text-blue-600 font-bold">{log.integrityHash}</span>
+                                                <p className="font-bold text-slate-800">{clients.find(c => c.id === log.clientId)?.name || 'Cliente Removido'}</p>
+                                                <p className="text-sm text-slate-500 line-clamp-1">{log.description}</p>
+                                            </div>
+                                            <button onClick={() => deleteLog(log.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                                                <Icon name="trash-2" className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {logs.length === 0 && <p className="text-slate-400 italic">Nenhum registro de prova ainda.</p>}
+                                </div>
                             </div>
                         )}
 
                         {activeTab === 'logs' && (
                             <div className="max-w-4xl mx-auto">
                                 <h2 className="text-2xl font-bold mb-6 text-slate-800">Registrar Prova Contemporânea</h2>
-                                <form onSubmit={addLog} className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-6 mb-10">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                {clients.length === 0 ? (
+                                    <div className="bg-amber-50 border border-amber-200 p-8 rounded-2xl text-center">
+                                        <Icon name="alert-circle" className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+                                        <h3 className="text-lg font-bold text-amber-800">Nenhum Cliente Cadastrado</h3>
+                                        <p className="text-amber-700 mb-6 text-sm">Você precisa cadastrar um Tomador de Serviço antes de registrar uma prova no diário.</p>
+                                        <button 
+                                            onClick={() => setActiveTab('clients')}
+                                            className="bg-amber-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-700 transition-colors"
+                                        >
+                                            Ir para Cadastro de Clientes
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={addLog} className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-6 mb-10">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-slate-700">Tomador de Serviço</label>
+                                                <select name="clientId" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                                    <option value="">Selecione o Cliente...</option>
+                                                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-bold text-slate-700">Data do Fato</label>
+                                                <input type="date" name="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" required />
+                                            </div>
+                                        </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-700">Tomador de Serviço</label>
-                                            <select name="clientId" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none" required>
-                                                <option value="">Selecione...</option>
-                                                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            <label className="text-sm font-bold text-slate-700">Tipo de Evidência Jurídica</label>
+                                            <select name="type" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50">
+                                                <option>Ausência de Subordinação (Decisão Própria)</option>
+                                                <option>Assunção de Risco (Investimento Próprio)</option>
+                                                <option>Não Eventualidade Documentada</option>
+                                                <option>Recusa de Exclusividade</option>
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-slate-700">Data do Fato</label>
-                                            <input type="date" name="date" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" required />
+                                            <label className="text-sm font-bold text-slate-700">Descrição Detalhada</label>
+                                            <textarea name="description" placeholder="Ex: Utilizei equipamento próprio e defini o cronograma sem interferência do contratante..." className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50" rows="3" required></textarea>
                                         </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">Tipo de Evidência Jurídica</label>
-                                        <select name="type" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50">
-                                            <option>Ausência de Subordinação (Decisão Própria)</option>
-                                            <option>Assunção de Risco (Investimento Próprio)</option>
-                                            <option>Não Eventualidade Documentada</option>
-                                            <option>Recusa de Exclusividade</option>
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700">Descrição Detalhada</label>
-                                        <textarea name="description" placeholder="Ex: Utilizei equipamento próprio e defini o cronograma sem interferência do contratante..." className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50" rows="3" required></textarea>
-                                    </div>
-                                    <input type="number" name="amount" placeholder="Valor do Serviço (R$)" step="0.01" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" />
-                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-black text-lg shadow-lg transition-all flex justify-center items-center gap-2">
-                                        <Icon name="check-circle" /> SALVAR REGISTRO
-                                    </button>
-                                </form>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-slate-700">Valor do Serviço (R$)</label>
+                                            <input type="number" name="amount" placeholder="0,00" step="0.01" className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50" />
+                                        </div>
+                                        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-black text-lg shadow-lg transition-all flex justify-center items-center gap-2">
+                                            <Icon name="check-circle" /> SALVAR NO DIÁRIO
+                                        </button>
+                                    </form>
+                                )}
                             </div>
                         )}
 
                         {activeTab === 'clients' && (
                             <div className="max-w-2xl mx-auto">
-                                <h2 className="text-2xl font-bold mb-6 text-slate-800">Meus Contratantes</h2>
+                                <h2 className="text-2xl font-bold mb-6 text-slate-800">Meus Contratantes (Tomadores)</h2>
+                                <p className="text-slate-500 mb-6 text-sm">Cadastre aqui as empresas ou pessoas para as quais você presta serviço.</p>
                                 <form onSubmit={addClient} className="bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row gap-3 mb-8">
                                     <input name="name" placeholder="Nome/Razão Social" className="flex-1 p-3 border rounded-xl" required />
                                     <input name="cnpj" placeholder="CNPJ ou CPF" className="w-full md:w-48 p-3 border rounded-xl" required />
                                     <button className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-colors">Adicionar</button>
                                 </form>
                                 <div className="space-y-3">
-                                    {clients.length === 0 && <p className="text-center text-slate-400 py-10">Nenhum cliente cadastrado.</p>}
+                                    {clients.length === 0 && (
+                                        <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-2xl">
+                                            <Icon name="users" className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                                            <p className="text-slate-400">Nenhum contratante cadastrado ainda.</p>
+                                        </div>
+                                    )}
                                     {clients.map(c => (
-                                        <div key={c.id} className="bg-white p-5 rounded-2xl flex items-center gap-4 border border-slate-100 shadow-sm">
-                                            <div className="bg-blue-100 p-4 rounded-full text-blue-700 font-black">{c.name[0].toUpperCase()}</div>
-                                            <div>
-                                                <p className="font-bold text-slate-800">{c.name}</p>
-                                                <p className="text-xs text-slate-400 font-mono uppercase">{c.cnpj}</p>
+                                        <div key={c.id} className="bg-white p-5 rounded-2xl flex items-center justify-between border border-slate-100 shadow-sm">
+                                            <div className="flex items-center gap-4">
+                                                <div className="bg-blue-100 p-4 rounded-full text-blue-700 font-black">{c.name[0].toUpperCase()}</div>
+                                                <div>
+                                                    <p className="font-bold text-slate-800">{c.name}</p>
+                                                    <p className="text-xs text-slate-400 font-mono uppercase">{c.cnpj}</p>
+                                                </div>
                                             </div>
+                                            <button 
+                                                onClick={() => {
+                                                    if(confirm("Deseja remover este cliente?")) {
+                                                        setClients(clients.filter(item => item.id !== c.id));
+                                                        setLogs(logs.filter(l => l.clientId !== c.id));
+                                                    }
+                                                }}
+                                                className="text-slate-300 hover:text-red-500 p-2"
+                                            >
+                                                <Icon name="trash-2" className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -183,7 +244,16 @@
                                         <h2 className="text-3xl font-black">Dossiê Material Pronto</h2>
                                         <p className="text-blue-200 mt-2">Relatório técnico para fins de prova de autonomia.</p>
                                     </div>
-                                    <button onClick={() => window.print()} className="bg-emerald-500 hover:bg-emerald-400 text-white px-10 py-5 rounded-2xl font-black shadow-xl flex items-center gap-3 transition-transform hover:scale-105 uppercase tracking-tighter">
+                                    <button 
+                                        onClick={() => {
+                                            if (logs.length === 0) {
+                                                alert("Adicione pelo menos um registro no diário para gerar o relatório.");
+                                            } else {
+                                                window.print();
+                                            }
+                                        }} 
+                                        className="bg-emerald-500 hover:bg-emerald-400 text-white px-10 py-5 rounded-2xl font-black shadow-xl flex items-center gap-3 transition-transform hover:scale-105 uppercase tracking-tighter"
+                                    >
                                         <Icon name="printer" /> Imprimir / Salvar PDF
                                     </button>
                                 </div>
@@ -191,45 +261,54 @@
                                 <div className="bg-white p-12 shadow-2xl rounded-sm min-h-[1000px] border border-slate-200 print:shadow-none print:border-none">
                                     <div className="flex justify-between items-start border-b-8 border-slate-900 pb-6 mb-12">
                                         <div>
-                                            <h1 className="text-3xl font-black text-slate-900">RELATÓRIO DE AUTONOMIA</h1>
+                                            <h1 className="text-3xl font-black text-slate-900 uppercase">Relatório de Autonomia</h1>
                                             <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Evidências Contemporâneas de Prestação de Serviço</p>
                                         </div>
                                         <div className="text-right text-xs font-mono text-slate-400">
-                                            GERADO EM: {new Date().toLocaleDateString('pt-BR')}<br/>
-                                            SISTEMA: AUTÔNOMO SEGURO V1.0
+                                            SISTEMA: AUTÔNOMO SEGURO V1.1<br/>
+                                            GERADO EM: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
                                         </div>
                                     </div>
                                     
-                                    {clients.map(client => {
-                                        const cLogs = logs.filter(l => l.clientId === client.id);
-                                        if(cLogs.length === 0) return null;
-                                        return (
-                                            <div key={client.id} className="mb-12">
-                                                <div className="bg-slate-100 p-4 rounded-lg flex justify-between items-center mb-6">
-                                                    <span className="font-black text-slate-700 uppercase">Contratante: {client.name}</span>
-                                                    <span className="text-sm font-mono">{client.cnpj}</span>
-                                                </div>
-                                                <div className="space-y-6">
-                                                    {cLogs.map(l => (
-                                                        <div key={l.id} className="border-b border-slate-100 pb-6 last:border-0">
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-xs font-black bg-slate-900 text-white px-2 py-1 rounded uppercase">{l.type}</span>
-                                                                <span className="text-xs font-mono text-slate-400">HASH: {l.integrityHash}</span>
+                                    {logs.length === 0 ? (
+                                        <div className="py-20 text-center text-slate-400 italic">
+                                            Nenhum dado registrado para exibição no relatório.
+                                        </div>
+                                    ) : (
+                                        clients.map(client => {
+                                            const cLogs = logs.filter(l => l.clientId === client.id);
+                                            if(cLogs.length === 0) return null;
+                                            return (
+                                                <div key={client.id} className="mb-12">
+                                                    <div className="bg-slate-100 p-4 rounded-lg flex justify-between items-center mb-6">
+                                                        <span className="font-black text-slate-700 uppercase tracking-tight">Tomador: {client.name}</span>
+                                                        <span className="text-sm font-mono text-slate-500">ID/DOC: {client.cnpj}</span>
+                                                    </div>
+                                                    <div className="space-y-6">
+                                                        {cLogs.map(l => (
+                                                            <div key={l.id} className="border-b border-slate-100 pb-6 last:border-0">
+                                                                <div className="flex justify-between items-center mb-2">
+                                                                    <span className="text-[10px] font-black bg-blue-600 text-white px-2 py-1 rounded uppercase tracking-tighter">{l.type}</span>
+                                                                    <span className="text-[10px] font-mono text-slate-300">INTEGRITY_HASH: {l.integrityHash}</span>
+                                                                </div>
+                                                                <p className="text-sm text-slate-700 leading-relaxed mb-2">
+                                                                    <strong className="text-slate-900 font-bold mr-2">{new Date(l.date + 'T12:00:00').toLocaleDateString('pt-BR')}:</strong> 
+                                                                    {l.description}
+                                                                </p>
+                                                                <p className="text-xs font-bold text-slate-400">Faturamento Vinculado: R$ {l.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
                                                             </div>
-                                                            <p className="text-sm text-slate-700 leading-relaxed mb-2"><strong className="text-slate-900">{l.date}:</strong> {l.description}</p>
-                                                            <p className="text-xs font-bold text-slate-400">Valor Declarado: R$ {l.amount.toFixed(2)}</p>
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })
+                                    )}
 
                                     <div className="mt-20 pt-10 border-t border-slate-200 flex flex-col items-center">
                                         <div className="w-72 h-px bg-slate-400 mb-4"></div>
-                                        <p className="text-sm font-black text-slate-800">DECLARAÇÃO DE VERACIDADE DO PRESTADOR</p>
+                                        <p className="text-sm font-black text-slate-800 uppercase tracking-widest">Declaração de Veracidade</p>
                                         <p className="text-[10px] text-slate-400 mt-8 max-w-lg text-center leading-tight italic">
-                                            Este documento reúne registros feitos em tempo real pelo profissional, servindo como meio de prova de autonomia técnica, ausência de subordinação e assunção de risco econômico.
+                                            Este dossiê consolida registros de prestação de serviços para fins de prova de autonomia técnica e econômica. Os dados são armazenados localmente e protegidos por hashes de integridade gerados no momento da inserção.
                                         </p>
                                     </div>
                                 </div>
