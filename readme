@@ -24,23 +24,6 @@ Não-Subordinação: Espaço dedicado para descrever "Decisões Técnicas Indepe
 
 Onerosidade: Controle de valores por entrega (milestone) e não por salário fixo.
 
-🛠️ Tecnologias
-
-React 18
-
-Tailwind CSS (Estilização de alta performance)
-
-Lucide Icons (Ícones semânticos)
-
-Integrity Hash System (Algoritmo de verificação de dados)
-
-📦 Como Rodar
-
-npm install
-
-npm run dev
-
-⚖️ Aviso Legal
 
 Este projeto é uma ferramenta de apoio à organização de evidências. O uso deste software não garante sucesso em demandas judiciais e não substitui o acompanhamento de um advogado especializado.
 
