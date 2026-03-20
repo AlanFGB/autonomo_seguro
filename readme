@@ -28,3 +28,52 @@ Onerosidade: Controle de valores por entrega (milestone) e não por salário fix
 Este projeto é uma ferramenta de apoio à organização de evidências. O uso deste software não garante sucesso em demandas judiciais e não substitui o acompanhamento de um advogado especializado.
 
 Licenciado sob a MIT License.
+Autônomo Seguro: Módulo Trabalhador Independente
+
+Este projeto é uma ferramenta de apoio dedicada ao profissional que opera fora das estruturas tradicionais de subordinação, focando na geração de valor direto, no sustento familiar e na autonomia técnica.
+
+🎯 Objetivo
+
+O objetivo deste módulo é permitir que o trabalhador independente documente a sua rotina e prove a sua natureza jurídica e económica. Ao registar actividades pontuais para empresas (CLT), parcerias com outros autónomos ou trabalhos de âmbito familiar, o utilizador cria um histórico sólido de não-subordinação e pluralidade de clientes.
+
+🚀 Funcionalidades
+
+Dashboard de Impacto: Visualização rápida do equilíbrio entre projectos eventuais, apoio familiar e parcerias.
+
+Registo de Prova de Autonomia: Formulário para documentar cada entrega de valor, permitindo classificar o tipo de trabalho e o benefício gerado para a sociedade.
+
+Central de Conceitos: Guia educativo que diferencia o trabalho Independente da busca por evolução na CLT ou da manutenção de direitos na via Judicial.
+
+Histórico Detalhado: Listagem de todas as actividades com data, cliente e valor (monetário ou de sustento).
+
+💡 Filosofia do Projecto
+
+O sistema baseia-se em três pilares fundamentais:
+
+Independência: O profissional é dono da sua agenda e técnica.
+
+Sustento: O foco primário é a manutenção digna do núcleo familiar.
+
+Valor Social: Todo o trabalho independente resolve um problema real da comunidade, gerando renda que circula localmente.
+
+🛠️ Tecnologias Utilizadas
+
+React: Framework para a construção da interface.
+
+Tailwind CSS: Estilização responsiva e moderna.
+
+Lucide React: Conjunto de ícones para melhor experiência visual.
+
+📋 Como Utilizar
+
+Registe Diariamente: Sempre que realizar uma tarefa, utilize o botão "Novo Registro".
+
+Classifique Corretamente: * Use CLT Eventual para serviços pontuais em empresas.
+
+Use Familiar para actividades que sustentam o lar.
+
+Use Parceria para colaborações com outros independentes.
+
+Descreva o Valor: No campo de descrição, foque em como aquele trabalho ajudou o cliente ou a família.
+
+Este projecto faz parte do ecossistema "Autônomo Seguro".
